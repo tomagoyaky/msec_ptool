@@ -17,6 +17,8 @@ usage(){
     log "  4)./msec_ptool.sh create list         \t#列出当前目录下所有的makefile项目工程"
     log "  5)./msec_ptool.sh ssh [nopassword]    \t#ssh快捷登录，当nopassword被配置时,自动跳到免密登录设置)"
     log "  6)./msec_ptool.sh distory             \t#删除该运行目录下所有的文件"
+    log "  -)./msec_ptool.sh lkm list            \t#罗列当前运行目录下的内核驱动项目"
+    log "  -)./msec_ptool.sh lkm build           \t#在源码机器上编译内核驱动项目"
 }
 
 param_parse(){
@@ -135,6 +137,11 @@ log "###"
 log "###     > description：通过Docker容器生成各种测试环境，方便快捷的建立工程项目、二进制安全测试"
 log "###     > author: tomagoyaky"
 log "###     > date: 2020-03-10"
+log "###"
+for key in ${!ssh_host[*]};do
+    HOST_NUMBER=$(($HOST_NUMBER+1)) 
+    log "###     > host: $HOST_NUMBER) ${ssh_host[$key]}"
+done
 log "###"
 log "#########################################################################################################################################"
 ########################################
