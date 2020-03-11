@@ -12,7 +12,7 @@ log(){
 usage(){
     log "usage: ./`basename $0` start|stop process name"
     log "  1)./msec_ptool.sh create shell demo   \t#创建基本的shell脚本 [demo.sh]"
-    log "  2)./msec_ptool.sh create ubuntu_x64   \t#创建指定的系统镜像,支持ubuntu_x64|centos_x64|linux_arm64|linux_arm32,默认创建ubuntu_x64"
+    log "  2)./msec_ptool.sh create [ubuntu_x64] \t#创建指定的系统镜像,支持ubuntu_x64|centos_x64|linux_arm64|linux_arm32,默认创建ubuntu_x64"
     log "  3)./msec_ptool.sh build [kmsec]       \t#编译项目工程'kmsec',在kmsec缺省情况下,相当于list功能"
     log "  4)./msec_ptool.sh list                \t#列出当前目录下所有的makefile项目工程"
     log "  5)./msec_ptool.sh ssh [nopassword]    \t#ssh快捷登录，当nopassword被配置时,自动跳到免密登录设置)"
