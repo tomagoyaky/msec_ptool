@@ -1,0 +1,17 @@
+version : '2'
+services:
+  # ******************************************
+  msec.ubuntu_x64:
+    container_name: msec.ubuntu_x64
+    image: 'msec.ubuntu_x64'
+    build:
+      context: "."
+      dockerfile: pwn.ubuntu.x64.dockerfile
+    networks:
+      - msec.network
+    volumes:
+      - /Volumes/FastDisk/vscode/pwn/docker-local:/var/docker-local
+      - /var/run/docker.sock:/var/run/docker.sock
+networks:
+  msec.network:
+    driver: bridge

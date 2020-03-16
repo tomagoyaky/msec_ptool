@@ -117,6 +117,9 @@ build_makefile_project(){
     cd ${base_path}/lkm_projects
     # build demo_x64 ubuntu_x64
     log "[build_makefile_project] build makefile project '$PROJECT_NAME' '$DOCKER_HOST_NAME'"
+    
+    rm -rf ${base_path}/docker-local/${PROJECT_NAME}
+    mkdir_when_not_exist ${base_path}/docker-local/${PROJECT_NAME}
 
     if [[ -n "$DOCKER_HOST_NAME" ]];then
         log "docker容器中编译..."
@@ -125,12 +128,17 @@ build_makefile_project(){
 
         CONTAINER_ID=`docker ps -a | grep "${DOCKER_HOST_NAME}" | awk '{ print $1 }'`
         echo "[build_makefile_project]正在像容器'$CONTAINER_ID'同步源码..."
-        #cp -r ${base_path}/lkm_projects/${PROJECT_NAME} ${base_path}/docker-local/${PROJECT_NAME} && \
-        docker exec -it ${CONTAINER_ID} /bin/sh -c "ls -la /var/docker-local/${PROJECT_NAME}"
+        if [ -d $1 ];then
+            cp -rf ${base_path}/lkm_projects/${PROJECT_NAME} ${base_path}/docker-local/${PROJECT_NAME}
+        else
+            cp -rf ${base_path}/lkm_projects/${PROJECT_NAME} ${base_path}/docker-local
+        fi
+        
+        # docker exec -it ${CONTAINER_ID} /bin/sh -c "ls -la /var/docker-local/${PROJECT_NAME}"
 
         ANDROID_BUILD_TOP=/var/docker-local/
         KERNEL_CROSS_COMPILE=gcc
-        docker exec -it ${CONTAINER_ID} /bin/sh -c "/var/docker-local/${PROJECT_NAME}/build.sh"
+        # docker exec -it ${CONTAINER_ID} /bin/sh -c "/var/docker-local/${PROJECT_NAME}/build.sh"
     else
         log "本地环境下编译..."
         cd ${base_path}/lkm_projects/${PROJECT_NAME}
@@ -165,23 +173,22 @@ create_os(){
     elif [[ "${OS_TYPE}" == *"centos" ]];then
         osType="centos"
     else
-        osType "not support ${OS_TYPE}"
+        log "not support ${OS_TYPE}"
     fi
 
-    log "[create_os] docker build msec_$osType.${eabi} docker-image..."
+    log "[create_os] docker build $osType.${eabi} docker-image..."
     docker ps -a | grep "/bin/sh" | awk '{ print $1 }' | xargs docker container rm -f 
     docker image list | grep none | awk '{print $3}' | xargs docker image rm
 
     mkdir ${base_path}/docker-local
-    docker build -t "${OS_NAME}" -f pwn.${osType}.${eabi}.Dockerfile .
-    docker run -d "${OS_NAME}" -v ${base_path}/docker-local:/var/docker-local /bin/sh
+    docker-compose -f docker-compose.yml up --build --no-start
+    docker-compose -f docker-compose.yml start msec.ubuntu_x64 
     docker ps -a
 
     CONTAINER_ID=`docker ps -a | grep "${OS_NAME}" | awk '{ print $1 }'`
     IMAGE_ID=`docker ps -a | grep "${OS_NAME}" | awk '{ print $2 }'`
     log ">>> OS_NAME=${OS_NAME}, IMAGE_ID=${IMAGE_ID}, CONTAINER_ID=${CONTAINER_ID}"
     docker exec -it ${CONTAINER_ID} /bin/sh -c "ls -la ."
-    #docker exec -it ${CONTAINER_ID} /bin/sh
 }
 create_lkm(){
     eabi="x64"
@@ -246,6 +253,12 @@ ssh_jump(){
 ######################################
 # main()
 ######################################
+mkdir_when_not_exist(){
+    if [ ! -d $1 ];then
+        log  "create workspace '$1' on local host"
+        mkdir -p $1
+    fi
+}
 clear
 log "#########################################################################################################################################"
 log "###"
